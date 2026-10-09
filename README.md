@@ -44,6 +44,7 @@ Candidates are never sent to the model. Editing a chip re-runs the search with t
 - **Exact matching over fuzzy scoring.** It gives high precision and is explainable, but a near miss (4.5 years for "5+") is excluded. Ranking inside a match set is simple, not learned.
 - **Strict about unsupported requirements.** A brief with one unanswerable clause returns nothing until the user removes that chip. That's safer than returning wrong people, but it's one extra click.
 - **Editing a filter counts as a new search**, which is harsh on the free plan; the UI warns before it happens.
+- Two billing events for the same company with the same `created` second: the one that arrives last wins (Stripe timestamps are in seconds, so this is rare).
 - No timestamp tolerance on webhook signatures. Replays are harmless because processing is idempotent and ordered, and it lets the sample events be replayed.
 
 ## With another week
