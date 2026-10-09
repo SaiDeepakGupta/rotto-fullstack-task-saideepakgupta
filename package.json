@@ -11,10 +11,9 @@
     "build": "next build",
     "start": "next start --port 3000",
     "typecheck": "tsc --noEmit",
-    "seed": "node scripts/seed.ts",
-    "eval": "node scripts/eval-queries.ts",
-    "test:security": "node scripts/test-security.ts",
-    "test:billing": "node scripts/test-billing.ts"
+    "seed": "node --env-file=.env.local scripts/seed.ts",
+    "eval": "node --env-file=.env.local scripts/eval-queries.ts",
+    "test": "node --env-file=.env.local scripts/test-api.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.133.0",
