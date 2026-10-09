@@ -3,7 +3,11 @@
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 
-const out = execFileSync("npx", ["supabase", "status", "-o", "env"], { encoding: "utf8" });
+// On Windows npx is npx.cmd, which only resolves through a shell.
+const out = execFileSync("npx", ["supabase", "status", "-o", "env"], {
+  encoding: "utf8",
+  shell: process.platform === "win32",
+});
 const vars = Object.fromEntries(
   [...out.matchAll(/^([A-Z_]+)="?([^"\n]*)"?$/gm)].map(([, key, value]) => [key, value]),
 );
