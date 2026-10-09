@@ -35,6 +35,10 @@ Rules:
 let client: Anthropic | undefined;
 
 export async function briefToFilters(brief: string): Promise<Filters> {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error("ANTHROPIC_API_KEY is not set");
+    throw new HttpError(503, "Search isn't set up yet: the server has no model API key.", "llm_not_configured");
+  }
   client ??= new Anthropic({ timeout: 15_000, maxRetries: 1 });
   let response: Anthropic.Message;
   try {
