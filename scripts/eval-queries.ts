@@ -1,8 +1,10 @@
-// Runs every brief in data/queries.json through the real search (LLM included)
-// and reports precision, recall, top-20 precision and latency. Also checks that
+// Runs every brief in a queries file (default data/queries.json; pass another path
+// as the first argument) through the real search (LLM included) and reports
+// precision, recall, top-20 precision and latency. Also checks that
 // hostile and unanswerable briefs return nobody. Needs `make dev` running and
 // ANTHROPIC_API_KEY set for the app. Run with `make eval`.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
 const APP = process.env.APP_URL ?? "http://localhost:3000";
@@ -46,9 +48,11 @@ const { data: original } = await admin.from("companies").select("plan").eq("id",
 await admin.from("companies").update({ plan: "paid" }).eq("id", "globex");
 
 try {
-  const queries: { brief: string; expected_ids: string[] }[] = JSON.parse(
-    readFileSync(new URL("../data/queries.json", import.meta.url), "utf8"),
-  );
+  const file = resolve(process.argv[2] ?? "data/queries.json");
+  const queries: { brief: string; expected_ids: string[] }[] = existsSync(file)
+    ? JSON.parse(readFileSync(file, "utf8"))
+    : [];
+  if (!queries.length) console.log(`No queries file at ${file}; skipping precision/recall.`);
   let sumP = 0, sumR = 0, sumTop = 0;
   for (const q of queries) {
     const r = await search(q.brief);
@@ -65,7 +69,7 @@ try {
     if (precision < 1 || recall < 1) console.log("   filters:", JSON.stringify(r.filters));
   }
   const n = queries.length;
-  console.log(`\nMean precision ${(sumP / n).toFixed(3)}, recall ${(sumR / n).toFixed(3)}, top-20 ${(sumTop / n).toFixed(3)}`);
+  if (n) console.log(`\nMean precision ${(sumP / n).toFixed(3)}, recall ${(sumR / n).toFixed(3)}, top-20 ${(sumTop / n).toFixed(3)}`);
 
   console.log("\nBriefs that should return nobody");
   const hostile = [

@@ -6,7 +6,7 @@ Recruiters describe who they need in plain English. An LLM turns the brief into 
 make setup   # npm ci, start local Supabase, apply migrations, load 5,000 candidates, seed acme + globex
 make dev     # http://localhost:3000  (needs ANTHROPIC_API_KEY and STRIPE_WEBHOOK_SECRET in the environment)
 make test    # tenant isolation, billing webhook, free-plan race, hostile input (against the running app)
-make eval    # data/queries.json precision/recall + hostile briefs (uses the real model)
+make eval    # precision/recall for data/queries.json if present (or QUERIES=path) + hostile briefs (uses the real model)
 ```
 
 Sign in as `recruiter@acme.test` or `recruiter@globex.test`, password `rotto-assessment`. Requires Node 24, Docker Desktop; Supabase CLI 2.119.0 and Next.js 16 are pinned in `package-lock.json`.
