@@ -42,6 +42,7 @@ reset:
 	npx supabase db reset --local
 	node --env-file=.env.local scripts/seed.ts
 
-## Give every company its free search back (keeps shortlists, saved searches and plans).
+## Put every company back on the default Free plan with 1 search, and forget billing
+## events so they can be replayed. Keeps shortlists and saved searches.
 reset-searches:
-	docker exec supabase_db_hirefast psql -U postgres -c "update public.companies set searches_used = 0;"
+	docker exec supabase_db_hirefast psql -U postgres -c "update public.companies set plan = 'free', subscription_status = null, billing_event_created = null, searches_used = 0; delete from public.billing_events;"
