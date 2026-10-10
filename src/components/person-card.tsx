@@ -47,7 +47,7 @@ export function PersonCard({
           {person.open_to_work && <span className="badge open">Open to work</span>}
         </div>
         <div className="card-sub">
-          {person.current_title} at
+          {person.current_title} at{" "}
           <Logo src={person.current_company_logo_url} />
           {person.current_company}
         </div>
