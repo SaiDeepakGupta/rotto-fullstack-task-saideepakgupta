@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 NODE_MAJOR := $(shell node -p 'process.versions.node.split(".")[0]' 2>/dev/null)
 
-.PHONY: setup dev check-node db-start eval test stop reset
+.PHONY: setup dev check-node db-start eval test stop reset reset-searches
 
 ## Install dependencies, start local Supabase, apply migrations and load the data.
 setup: check-node
@@ -41,3 +41,7 @@ stop:
 reset:
 	npx supabase db reset --local
 	node --env-file=.env.local scripts/seed.ts
+
+## Give every company its free search back (keeps shortlists, saved searches and plans).
+reset-searches:
+	docker exec supabase_db_hirefast psql -U postgres -c "update public.companies set searches_used = 0;"
