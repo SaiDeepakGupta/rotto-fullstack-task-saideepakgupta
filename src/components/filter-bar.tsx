@@ -126,14 +126,19 @@ function useDismiss(onClose: () => void) {
 
 function AddMenu({ filters, onApply, onClose }: { filters: Filters; onApply: (p: Partial<Filters>) => void; onClose: () => void }) {
   const [field, setField] = useState<Editable | null>(null);
-  const ref = useDismiss(onClose);
   if (field) return <Editor field={field} filters={filters} onApply={onApply} onClose={onClose} />;
+  return <FieldMenu onPick={setField} onClose={onClose} />;
+}
+
+/** The "Filter by" list. Its own component so its outside-click listener goes away once a field is picked. */
+function FieldMenu({ onPick, onClose }: { onPick: (field: Editable) => void; onClose: () => void }) {
+  const ref = useDismiss(onClose);
   return (
     <div className="popover" ref={ref} role="menu">
       <div className="popover-head">Filter by</div>
       <div className="popover-list">
         {ADDABLE.map((f) => (
-          <button key={f} className="option" role="menuitem" onClick={() => setField(f)}>
+          <button key={f} className="option" role="menuitem" onClick={() => onPick(f)}>
             {FIELD_LABELS[f]}
           </button>
         ))}
