@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 NODE_MAJOR := $(shell node -p 'process.versions.node.split(".")[0]' 2>/dev/null)
 
-.PHONY: setup dev check-node db-start eval test stop reset reset-searches
+.PHONY: setup dev warm check-node db-start eval test stop reset reset-searches
 
 ## Install dependencies, start local Supabase, apply migrations and load the data.
 setup: check-node
@@ -16,7 +16,18 @@ setup: check-node
 dev: check-node
 	@test -f .env.local || (echo "Run 'make setup' first." && exit 1)
 	@npx supabase status >/dev/null 2>&1 || $(MAKE) db-start
+	@$(MAKE) --no-print-directory warm &
 	npx next dev --port 3000
+
+# Dev mode compiles each route on first use; request every route once in the
+# background so the first real search isn't slowed down by compilation.
+warm:
+	@until curl -s -o /dev/null http://localhost:3000/login; do sleep 1; done
+	@for path in / /shortlists /saved /api/plan /api/search /api/search/00000000-0000-0000-0000-000000000000 \
+	  /api/people/x /api/shortlists /api/shortlists/x /api/shortlists/x/people/y /api/saved-briefs \
+	  /api/saved-briefs/x; do curl -s -o /dev/null "http://localhost:3000$$path"; done
+	@curl -s -o /dev/null -X POST http://localhost:3000/api/search
+	@curl -s -o /dev/null -X POST http://localhost:3000/api/billing/events
 
 db-start:
 	@docker info >/dev/null 2>&1 || (echo "Docker is not running. Start Docker Desktop and retry." && exit 1)
