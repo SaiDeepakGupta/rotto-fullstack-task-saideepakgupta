@@ -25,10 +25,13 @@ export function FilterBar({
   filters,
   onChange,
   disabled,
+  onLocked,
 }: {
   filters: Filters;
   onChange: (next: Filters) => void;
   disabled?: boolean;
+  /** Set when the plan has no searches left: chips stay clickable but explain how to upgrade instead of editing. */
+  onLocked?: () => void;
 }) {
   const [editing, setEditing] = useState<Editing>(null);
   const update = (patch: Partial<Filters>) => {
@@ -74,14 +77,14 @@ export function FilterBar({
           <span key={chip.key} className={`chip ${chip.field === "unsupported" ? "warn" : ""}`}>
             <button
               className="chip-main"
-              disabled={disabled || chip.field === "unsupported"}
-              onClick={() => chip.field !== "unsupported" && setEditing({ field: chip.field, anchor: chip.key })}
-              title={chip.field === "unsupported" ? "Profiles don't contain this, so no one can match it" : "Edit"}
+              disabled={disabled || (chip.field === "unsupported" && !onLocked)}
+              onClick={() => (onLocked ? onLocked() : chip.field !== "unsupported" && setEditing({ field: chip.field, anchor: chip.key }))}
+              title={chip.field === "unsupported" ? "Profiles don't contain this, so no one can match it" : onLocked ? "Upgrade to edit filters" : "Edit"}
             >
               <span className="chip-key">{FIELD_LABELS[chip.field]}</span>
               <span className="chip-value">{chip.label}</span>
             </button>
-            <button className="chip-x" disabled={disabled} onClick={chip.remove} aria-label={`Remove ${FIELD_LABELS[chip.field]} ${chip.label}`}>
+            <button className="chip-x" disabled={disabled} onClick={onLocked ?? chip.remove} aria-label={`Remove ${FIELD_LABELS[chip.field]} ${chip.label}`}>
               <XIcon width={13} height={13} />
             </button>
             {editing?.anchor === chip.key && chip.field !== "unsupported" && (
@@ -90,7 +93,7 @@ export function FilterBar({
           </span>
         ))}
         <span style={{ position: "relative" }}>
-          <button className="chip-add" disabled={disabled} onClick={() => setEditing(editing?.anchor === "add" ? null : { field: "roles", anchor: "add" })}>
+          <button className="chip-add" disabled={disabled} onClick={() => onLocked ? onLocked() : setEditing(editing?.anchor === "add" ? null : { field: "roles", anchor: "add" })}>
             <PlusIcon width={13} height={13} /> Add filter
           </button>
           {editing?.anchor === "add" && <AddMenu filters={filters} onApply={update} onClose={() => setEditing(null)} />}
@@ -98,7 +101,7 @@ export function FilterBar({
       </div>
       {filters.unsupported.length > 0 && (
         <p className="filters-note">
-          Profiles don&apos;t include the highlighted requirement, so nobody can be matched on it. Remove it to search on the rest.
+          Profiles don&apos;t include the highlighted requirement, so nobody can be matched on it. {onLocked ? "Upgrade to remove it and search on the rest." : "Remove it to search on the rest."}
         </p>
       )}
     </div>
