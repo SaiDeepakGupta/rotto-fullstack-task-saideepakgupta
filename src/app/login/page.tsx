@@ -6,11 +6,6 @@ import { browserSupabase } from "@/lib/client/supabase";
 import { useApp } from "@/components/app-context";
 import { AlertIcon } from "@/components/icons";
 
-const DEMO = [
-  { company: "Acme", email: "recruiter@acme.test" },
-  { company: "Globex", email: "recruiter@globex.test" },
-];
-
 export default function LoginPage() {
   const { session, ready } = useApp();
   const router = useRouter();
@@ -57,24 +52,6 @@ export default function LoginPage() {
             {busy ? <span className="spinner" /> : null} Sign in
           </button>
         </form>
-        <div className="demo">
-          Demo recruiters (password <code>rotto-assessment</code>):
-          <div className="demo-buttons">
-            {DEMO.map((d) => (
-              <button
-                key={d.email}
-                type="button"
-                className="btn btn-sm"
-                onClick={() => {
-                  setEmail(d.email);
-                  setPassword("rotto-assessment");
-                }}
-              >
-                {d.company}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </main>
   );
