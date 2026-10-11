@@ -140,6 +140,7 @@ h1, h2, h3, p { margin: 0; }
 .chip.warn .chip-key { color: var(--amber); }
 .chip-add { height: 32px; border-radius: 999px; border: 1px dashed var(--line); background: transparent; padding: 0 12px; font-size: 13px; color: var(--ink-2); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
 .chip-add:hover { color: var(--ink); border-color: var(--ink-3); }
+.chip-main:disabled, .chip-x:disabled, .chip-add:disabled { cursor: default; opacity: 0.55; background: none; }
 .filters-note { margin-top: 10px; font-size: 13px; color: var(--ink-2); }
 
 /* ───────── Popover ───────── */

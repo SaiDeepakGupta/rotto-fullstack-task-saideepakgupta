@@ -31,7 +31,7 @@ export default function SearchRoute() {
 }
 
 function SearchPageView() {
-  const { plan, refreshPlan, toast } = useApp();
+  const { plan, refreshPlan, toast, setUpgradeOpen } = useApp();
   const router = useRouter();
   const params = useSearchParams();
   const urlSearch = params.get("search");
@@ -178,10 +178,17 @@ function SearchPageView() {
       {((outOfSearches && !busy) || error?.status === 402) && <UpgradeCard />}
 
       {current && (
-        <FilterBar filters={current.filters} disabled={busy || outOfSearches} onChange={(next) => run(current.brief, next)} />
+        <FilterBar
+          filters={current.filters}
+          disabled={busy}
+          onLocked={outOfSearches ? () => setUpgradeOpen(true) : undefined}
+          onChange={(next) => run(current.brief, next)}
+        />
       )}
-      {current && plan?.plan === "free" && !outOfSearches && (
-        <p className="filters-note">Changing a filter runs a new search.</p>
+      {current && plan?.plan === "free" && (
+        <p className="filters-note">
+          {outOfSearches ? "Changing a filter runs a new search. Upgrade to edit filters." : "Changing a filter runs a new search."}
+        </p>
       )}
 
       <div ref={resultsTop} style={{ scrollMarginTop: 72 }} />
