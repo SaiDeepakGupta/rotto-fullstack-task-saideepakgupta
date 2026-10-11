@@ -31,7 +31,7 @@ export default function SearchRoute() {
 }
 
 function SearchPageView() {
-  const { plan, refreshPlan, toast, setUpgradeOpen } = useApp();
+  const { plan, refreshPlan, toast, setUpgradeOpen, setLastSearchHref } = useApp();
   const router = useRouter();
   const params = useSearchParams();
   const urlSearch = params.get("search");
@@ -48,6 +48,11 @@ function SearchPageView() {
   const resultsTop = useRef<HTMLDivElement>(null);
 
   const outOfSearches = plan?.plan === "free" && plan.searches_remaining === 0;
+
+  // Remember the search on screen so the Search tab brings the recruiter back to it.
+  useEffect(() => {
+    setLastSearchHref(urlSearch ? `/?search=${urlSearch}${urlPage > 1 ? `&page=${urlPage}` : ""}` : "/");
+  }, [urlSearch, urlPage, setLastSearchHref]);
 
   // Load whichever search/page the URL points at (deep links, back/forward, reloads).
   useEffect(() => {
