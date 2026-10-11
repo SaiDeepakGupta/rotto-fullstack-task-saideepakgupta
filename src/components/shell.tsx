@@ -43,8 +43,10 @@ function PlanPill() {
 
 /** Header, phone tab bar and the app-wide overlays. Redirects to /login when signed out. */
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { session, ready, plan, signOut } = useApp();
+  const { session, ready, plan, signOut, lastSearchHref } = useApp();
   const pathname = usePathname();
+  // The Search tab returns to the search on screen; the logo starts a new one.
+  const navHref = (href: string) => (href === "/" ? lastSearchHref : href);
   const router = useRouter();
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </Link>
         <nav className="nav" aria-label="Main">
           {NAV.map(({ href, label, Icon }) => (
-            <Link key={href} href={href} className={isActive(pathname, href) ? "active" : ""}>
+            <Link key={href} href={navHref(href)} className={isActive(pathname, href) ? "active" : ""}>
               <Icon /> {label}
             </Link>
           ))}
@@ -79,7 +81,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <nav className="tabbar" aria-label="Main">
         {NAV.map(({ href, label, Icon }) => (
-          <Link key={href} href={href} className={isActive(pathname, href) ? "active" : ""}>
+          <Link key={href} href={navHref(href)} className={isActive(pathname, href) ? "active" : ""}>
             <Icon width={20} height={20} /> {label}
           </Link>
         ))}

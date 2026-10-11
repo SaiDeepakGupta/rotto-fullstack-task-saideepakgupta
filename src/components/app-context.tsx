@@ -15,6 +15,9 @@ type AppState = {
   refreshShortlists: () => Promise<void>;
   personId: string | null;
   openPerson: (id: string | null) => void;
+  /** URL of the search on screen, so the Search tab returns to it. */
+  lastSearchHref: string;
+  setLastSearchHref: (href: string) => void;
   upgradeOpen: boolean;
   setUpgradeOpen: (open: boolean) => void;
   toast: (message: string) => void;
@@ -35,6 +38,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [plan, setPlan] = useState<PlanInfo | null>(null);
   const [shortlists, setShortlists] = useState<Shortlist[]>([]);
   const [personId, openPerson] = useState<string | null>(null);
+  const [lastSearchHref, setLastSearchHref] = useState("/");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -82,14 +86,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     await browserSupabase().auth.signOut();
     setPlan(null);
     setShortlists([]);
+    setLastSearchHref("/");
   }, []);
 
   const value = useMemo<AppState>(
     () => ({
       session, ready, plan, refreshPlan, shortlists, refreshShortlists,
-      personId, openPerson, upgradeOpen, setUpgradeOpen, toast, signOut,
+      personId, openPerson, lastSearchHref, setLastSearchHref, upgradeOpen, setUpgradeOpen, toast, signOut,
     }),
-    [session, ready, plan, refreshPlan, shortlists, refreshShortlists, personId, upgradeOpen, toast, signOut],
+    [session, ready, plan, refreshPlan, shortlists, refreshShortlists, personId, lastSearchHref, upgradeOpen, toast, signOut],
   );
 
   return (
