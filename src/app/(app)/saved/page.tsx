@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/client/api";
-import { FIELD_LABELS, LIST_FIELD_NAMES, valueLabel, yearsLabel, type Filters } from "@/lib/filters";
+import { FIELD_LABELS, LIST_FIELD_NAMES, parseClientFilters, valueLabel, yearsLabel, type Filters } from "@/lib/filters";
 import type { SavedBrief, SearchCreated } from "@/lib/types";
 import { useApp } from "@/components/app-context";
 import { AlertIcon, ArrowRight, TrashIcon } from "@/components/icons";
 
-function summary(f: Filters): string[] {
+function summary(saved: unknown): string[] {
+  const f: Filters | null = parseClientFilters(saved);
+  if (!f) return [];
   const parts = LIST_FIELD_NAMES.flatMap((k) => (f[k] as string[]).map((v) => `${FIELD_LABELS[k]}: ${valueLabel(v)}`));
   if (f.open_to_work !== null) parts.push(f.open_to_work ? "Open to work" : "Not looking");
   const years = yearsLabel(f.min_years, f.max_years);
@@ -35,7 +37,9 @@ export default function SavedPage() {
     if (outOfSearches) return setUpgradeOpen(true);
     setRunning(s.id);
     try {
-      const res = await api<SearchCreated>("/api/search", { body: { brief: s.brief, filters: s.filters } });
+      const filters = parseClientFilters(s.filters);
+      // Valid saved filters skip the model; anything else re-reads the brief.
+      const res = await api<SearchCreated>("/api/search", { body: filters ? { brief: s.brief, filters } : { brief: s.brief } });
       router.push(`/?search=${res.search_id}`);
     } catch (err) {
       if (err instanceof ApiError && err.status === 402) setUpgradeOpen(true);
