@@ -234,7 +234,7 @@ function SearchPageView() {
           {status === "paging" ? (
             <CardSkeletons />
           ) : current.total === 0 ? (
-            <EmptyState filters={current.filters} />
+            <EmptyState filters={current.filters} locked={outOfSearches} />
           ) : (
             <div className="cards">
               {current.results.map((p) => (
@@ -264,14 +264,14 @@ function SearchPageView() {
   );
 }
 
-function EmptyState({ filters }: { filters: Filters }) {
+function EmptyState({ filters, locked }: { filters: Filters; locked: boolean }) {
   if (filters.unsupported.length > 0) {
     return (
       <div className="state">
         <h3>No one can match this brief</h3>
         <p>
-          Profiles don&apos;t record {filters.unsupported.map((u) => `“${u}”`).join(", ")}, so we won&apos;t guess. Remove that
-          filter above to search on the rest.
+          Profiles don&apos;t record {filters.unsupported.map((u) => `“${u}”`).join(", ")}, so we won&apos;t guess.{" "}
+          {locked ? "Upgrade to remove that filter and search on the rest." : "Remove that filter above to search on the rest."}
         </p>
       </div>
     );
@@ -287,7 +287,7 @@ function EmptyState({ filters }: { filters: Filters }) {
   return (
     <div className="state">
       <h3>No one matches all of these filters</h3>
-      <p>Remove or loosen a filter above to widen the search.</p>
+      <p>{locked ? "Upgrade to remove or loosen a filter and widen the search." : "Remove or loosen a filter above to widen the search."}</p>
     </div>
   );
 }
